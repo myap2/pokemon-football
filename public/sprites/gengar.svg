@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
+  <path d="M128 40 L112 78 L96 44 L92 84 L64 58 L80 96 L42 90 L78 118 L36 128 L78 140 L48 168 L90 156 L70 200 L108 168 L112 214 L128 176 L144 214 L148 168 L186 200 L166 156 L208 168 L178 140 L220 128 L178 118 L214 90 L176 96 L192 58 L164 84 L160 44 L144 78 Z" fill="#5A457C"/>
+  <ellipse cx="128" cy="140" rx="70" ry="62" fill="#705898" stroke="#2C2040" stroke-width="4"/>
+  <path d="M70 96 L88 48 L108 88" fill="#705898" stroke="#2C2040" stroke-width="4"/>
+  <path d="M186 96 L168 48 L148 88" fill="#705898" stroke="#2C2040" stroke-width="4"/>
+  <path d="M96 44 L108 78 L120 50" fill="#705898" stroke="#2C2040" stroke-width="3"/>
+  <path d="M160 44 L148 78 L136 50" fill="#705898" stroke="#2C2040" stroke-width="3"/>
+  <ellipse cx="108" cy="132" rx="16" ry="20" fill="#E05090"/>
+  <ellipse cx="148" cy="132" rx="16" ry="20" fill="#E05090"/>
+  <ellipse cx="108" cy="136" rx="8" ry="12" fill="#2A1020"/>
+  <ellipse cx="148" cy="136" rx="8" ry="12" fill="#2A1020"/>
+  <path d="M88 160 Q128 200 168 160 Q128 176 88 160 Z" fill="#2A1020"/>
+  <path d="M100 164 L106 178 L112 164 L118 180 L124 164 L130 180 L136 164 L142 180 L148 164 L154 176 L158 164" fill="none" stroke="#E8E0F0" stroke-width="3"/>
+  <ellipse cx="78" cy="168" rx="14" ry="12" fill="#705898" stroke="#2C2040" stroke-width="3"/>
+  <ellipse cx="178" cy="168" rx="14" ry="12" fill="#705898" stroke="#2C2040" stroke-width="3"/>
+</svg>

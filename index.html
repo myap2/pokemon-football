@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Pokémon Football — 3v3 Arcade Gridiron</title>
+    <link rel="icon" href="./favicon.svg" type="image/svg+xml" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Lilita+One&family=Nunito:wght@600;700;800&family=Teko:wght@500;600;700&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <div id="app">
+      <section id="screen-home" class="screen">
+        <div class="home-bg"></div>
+        <div class="home-shade"></div>
+        <div class="home-content">
+          <p class="kicker">Unofficial fan game · 3v3 arcade football</p>
+          <h1>Pokémon<br />Football</h1>
+          <p class="tagline">Pick three. Hike. Run, throw, tackle, score.</p>
+          <button id="btn-play" class="btn primary" type="button">Play Game</button>
+          <section class="controls-card" aria-label="Controls">
+            <h2>Controls</h2>
+            <ul>
+              <li><kbd>W A S D</kbd> or <kbd>Arrows</kbd> Move</li>
+              <li><kbd>Space</kbd> Snap · Throw · Handoff · Tackle</li>
+              <li><kbd>1</kbd> <kbd>2</kbd> <kbd>3</kbd> Pick a receiver (or defender)</li>
+              <li><kbd>Shift</kbd> Use Pokémon ability</li>
+            </ul>
+            <p class="fineprint">
+              Four downs to get a first down. Touchdowns are 7 points. No punts, field
+              goals, or penalties in this first version.
+            </p>
+          </section>
+        </div>
+      </section>
+
+      <section id="screen-team" class="screen hidden">
+        <div class="panel">
+          <header class="panel-head">
+            <div>
+              <p class="kicker">Choose Your Team</p>
+              <h2>Pick 3 Pokémon</h2>
+            </div>
+            <p class="pick-hint" id="pick-hint">0 / 3 selected · first pick is your QB</p>
+          </header>
+          <div id="roster" class="roster"></div>
+          <div class="panel-actions">
+            <button id="btn-back-home" class="btn ghost" type="button">Back</button>
+            <button id="btn-start" class="btn primary" type="button" disabled>Start Game</button>
+          </div>
+        </div>
+      </section>
+
+      <section id="screen-game" class="screen hidden">
+        <header id="scoreboard">
+          <div class="sb-team you">
+            <span class="sb-label">YOU</span>
+            <span id="sb-you" class="sb-score">0</span>
+          </div>
+          <div class="sb-mid">
+            <div id="sb-clock" class="sb-clock">3:00</div>
+            <div id="sb-down" class="sb-down">1st &amp; 10</div>
+            <div id="sb-spot" class="sb-spot">Ball on 25 · YOU possess</div>
+          </div>
+          <div class="sb-team cpu">
+            <span class="sb-label">CPU</span>
+            <span id="sb-cpu" class="sb-score">0</span>
+          </div>
+        </header>
+        <canvas id="field"></canvas>
+        <footer id="game-bar">
+          <span><kbd>WASD</kbd> Move</span>
+          <span><kbd>Space</kbd> Throw / Tackle</span>
+          <span><kbd>1 2 3</kbd> Select</span>
+          <span><kbd>Shift</kbd> Ability</span>
+          <button id="btn-mute" class="btn tiny" type="button">Sound on</button>
+        </footer>
+        <div id="help" class="modal">
+          <div class="modal-card">
+            <h2>How to play</h2>
+            <ul>
+              <li>You control one Pokémon at a time. On offense that is whoever has the ball.</li>
+              <li>Space throws to the circled receiver, or hands off if a teammate is next to you.</li>
+              <li>On defense, Space lunges into a tackle. 1 / 2 / 3 switches who you control.</li>
+              <li>Get 10 yards in 4 downs, or score in the red end zone.</li>
+            </ul>
+            <button id="btn-got-it" class="btn primary" type="button">Got it — let’s hike</button>
+          </div>
+        </div>
+      </section>
+
+      <section id="screen-over" class="screen hidden">
+        <div class="panel over-panel">
+          <p class="kicker" id="over-kicker">Final</p>
+          <h2 id="over-title">You win!</h2>
+          <div class="final-score">
+            <div>
+              <span>YOU</span>
+              <strong id="over-you">0</strong>
+            </div>
+            <div>
+              <span>CPU</span>
+              <strong id="over-cpu">0</strong>
+            </div>
+          </div>
+          <p id="over-sub" class="tagline">Touchdowns only. Rematch?</p>
+          <div class="panel-actions">
+            <button id="btn-again" class="btn primary" type="button">Play Again</button>
+            <button id="btn-home" class="btn ghost" type="button">Home</button>
+          </div>
+        </div>
+      </section>
+    </div>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
