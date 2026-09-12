@@ -18,9 +18,21 @@ body,
 #app {
   margin: 0;
   height: 100%;
+  min-height: 100dvh;
   background: var(--bg);
   color: var(--ink);
   font-family: Nunito, system-ui, sans-serif;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  overscroll-behavior: none;
+}
+
+button,
+.card {
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
 }
 
 .hidden {
@@ -58,7 +70,8 @@ body,
   z-index: 1;
   width: min(720px, calc(100% - 32px));
   text-align: center;
-  padding: 48px 0 64px;
+  padding: max(48px, calc(env(safe-area-inset-top) + 24px)) 0
+    max(64px, calc(env(safe-area-inset-bottom) + 24px));
 }
 
 .kicker {
@@ -97,6 +110,7 @@ h2 {
   font-weight: 800;
   border-radius: 999px;
   padding: 12px 22px;
+  min-height: 44px;
 }
 
 .btn.primary {
@@ -159,6 +173,37 @@ h2 {
   border-top: 1px solid rgba(255, 255, 255, 0.06);
 }
 
+.chip {
+  flex: 0 0 auto;
+  font-family: Teko, sans-serif;
+  font-size: 16px;
+  background: #1d3a24;
+  border: 1px solid #3c6848;
+  border-bottom-width: 3px;
+  border-radius: 8px;
+  padding: 2px 8px;
+  color: var(--gold);
+  min-width: 64px;
+  text-align: center;
+}
+
+.chip.gold {
+  background: var(--gold);
+  color: #14210f;
+  border-color: #b89620;
+}
+
+.install-hint {
+  display: none;
+  margin: 16px 0 0;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.controls-touch {
+  display: none;
+}
+
 kbd {
   font-family: Teko, sans-serif;
   font-size: 16px;
@@ -180,7 +225,8 @@ kbd {
 #screen-over {
   display: grid;
   place-items: center;
-  padding: 24px;
+  padding: max(24px, env(safe-area-inset-top)) max(24px, env(safe-area-inset-right))
+    max(24px, env(safe-area-inset-bottom)) max(24px, env(safe-area-inset-left));
   background:
     radial-gradient(circle at top, #16321c, var(--bg) 60%);
 }
@@ -313,11 +359,12 @@ kbd {
 }
 
 #scoreboard {
+  position: relative;
   display: grid;
   grid-template-columns: 1fr 2fr 1fr;
   gap: 12px;
   align-items: center;
-  padding: 8px 16px;
+  padding: calc(8px + env(safe-area-inset-top)) 16px 8px;
   background: linear-gradient(#0e2416, #0a1b10);
   border-bottom: 2px solid var(--gold);
 }
@@ -330,6 +377,13 @@ kbd {
 
 .sb-team.cpu {
   justify-content: end;
+  flex-wrap: wrap;
+}
+
+.sb-mute {
+  min-height: 0;
+  padding: 4px 8px;
+  font-size: 11px;
 }
 
 .sb-label {
@@ -355,6 +409,13 @@ kbd {
   text-align: center;
 }
 
+.sb-clock-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
 .sb-clock {
   font-family: Teko, sans-serif;
   font-size: 34px;
@@ -375,6 +436,7 @@ kbd {
   height: 100%;
   display: block;
   background: #1f6b2a;
+  touch-action: none;
 }
 
 #game-bar {
@@ -459,10 +521,315 @@ kbd {
 
 @media (max-width: 640px) {
   .roster {
-    grid-template-columns: 1fr;
+    grid-template-columns: 1fr 1fr;
   }
   .panel-head {
     flex-direction: column;
     align-items: start;
+  }
+  .card img {
+    height: 88px;
+  }
+  .card h3 {
+    font-size: 16px;
+  }
+  h1 {
+    font-size: clamp(44px, 16vw, 72px);
+  }
+  .home-content {
+    padding: 36px 0 40px;
+  }
+  .panel {
+    padding: 16px;
+    border-radius: 20px;
+  }
+  .sb-score {
+    font-size: 32px;
+  }
+  .sb-clock {
+    font-size: 24px;
+  }
+  .sb-spot {
+    font-size: 11px;
+  }
+  #scoreboard {
+    gap: 6px;
+    padding: calc(6px + env(safe-area-inset-top)) 10px 6px;
+  }
+  .modal-card {
+    max-height: min(88dvh, 560px);
+    overflow: auto;
+  }
+}
+
+.touch-pad {
+  display: none;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px 14px calc(10px + env(safe-area-inset-bottom));
+  background: #0a1b10;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+}
+
+.stick {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.stick-base {
+  width: 124px;
+  height: 124px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.08);
+  border: 3px solid rgba(244, 211, 94, 0.4);
+  position: relative;
+  touch-action: none;
+}
+
+.stick-knob {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: var(--gold);
+  box-shadow: 0 6px 0 #b89620;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+
+.stick-label {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.touch-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
+}
+
+.touch-slots {
+  display: flex;
+  gap: 8px;
+}
+
+.pad-slot {
+  width: 58px;
+  height: 70px;
+  padding: 4px;
+  border: 2px solid #2a4a32;
+  border-radius: 14px;
+  background: #0c1c12;
+  color: inherit;
+  font: inherit;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+}
+
+.pad-slot img {
+  width: 36px;
+  height: 36px;
+  object-fit: contain;
+}
+
+.pad-slot .slot-name {
+  font-size: 9px;
+  font-weight: 800;
+  line-height: 1;
+  max-width: 52px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.pad-slot.active {
+  border-color: var(--gold);
+  box-shadow: 0 0 0 2px rgba(244, 211, 94, 0.3);
+}
+
+.pad-slot.empty {
+  opacity: 0.28;
+  pointer-events: none;
+}
+
+.touch-buttons {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.pad-ability {
+  min-width: 88px;
+  max-width: 110px;
+  min-height: 56px;
+  border: 2px solid #3c6848;
+  border-radius: 16px;
+  background: #1d3a24;
+  color: var(--ink);
+  font: inherit;
+  font-weight: 800;
+  padding: 6px 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  line-height: 1.1;
+}
+
+.pad-ability .pad-kicker {
+  font-size: 9px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.pad-ability #ability-name {
+  font-size: 12px;
+}
+
+.pad-ability.cooling {
+  opacity: 0.5;
+}
+
+.pad-ability.hot {
+  border-color: var(--gold);
+  color: var(--gold);
+}
+
+.pad-action {
+  width: 92px;
+  height: 92px;
+  border: 0;
+  border-radius: 50%;
+  background: var(--gold);
+  color: #14210f;
+  font-family: "Lilita One", sans-serif;
+  font-size: 22px;
+  box-shadow: 0 7px 0 #b89620;
+  touch-action: manipulation;
+}
+
+.pad-action:active {
+  transform: translateY(3px);
+  box-shadow: 0 4px 0 #b89620;
+}
+
+html.touch-ui .touch-pad {
+  display: flex;
+}
+
+html.touch-ui #game-bar {
+  display: none;
+}
+
+html.touch-ui .controls-touch {
+  display: block;
+}
+
+html.touch-ui .controls-kb {
+  display: none;
+}
+
+html.touch-ui .install-hint {
+  display: block;
+}
+
+html.touch-ui .btn.primary {
+  min-height: 52px;
+  padding: 14px 28px;
+  font-size: 20px;
+}
+
+body.playing,
+body.playing #app,
+body.playing #screen-game {
+  height: 100%;
+  height: 100dvh;
+  height: 100svh;
+  overflow: hidden;
+}
+
+body.playing {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+}
+
+@media (orientation: landscape) and (max-height: 560px) {
+  html.touch-ui #screen-game {
+    grid-template-rows: auto 1fr;
+  }
+
+  html.touch-ui .touch-pad {
+    grid-row: 2;
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 3;
+    background: transparent;
+    padding: 0 max(16px, env(safe-area-inset-right)) calc(8px + env(safe-area-inset-bottom))
+      max(16px, env(safe-area-inset-left));
+    pointer-events: none;
+  }
+
+  html.touch-ui .touch-pad .stick,
+  html.touch-ui .touch-pad .touch-actions,
+  html.touch-ui .touch-pad button,
+  html.touch-ui .touch-pad .stick-base {
+    pointer-events: auto;
+  }
+
+  html.touch-ui .stick-base {
+    width: 108px;
+    height: 108px;
+    background: rgba(0, 0, 0, 0.38);
+  }
+
+  html.touch-ui .pad-action {
+    width: 78px;
+    height: 78px;
+    font-size: 18px;
+  }
+
+  html.touch-ui .sb-score {
+    font-size: 28px;
+  }
+
+  html.touch-ui .sb-clock {
+    font-size: 22px;
+  }
+}
+
+@media (max-width: 420px) {
+  .stick-base {
+    width: 108px;
+    height: 108px;
+  }
+  .stick-knob {
+    width: 48px;
+    height: 48px;
+  }
+  .pad-action {
+    width: 80px;
+    height: 80px;
+    font-size: 18px;
+  }
+  .pad-slot {
+    width: 52px;
+    height: 64px;
   }
 }

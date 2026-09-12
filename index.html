@@ -2,9 +2,24 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no"
+    />
+    <meta name="theme-color" content="#07140c" />
+    <meta name="color-scheme" content="dark" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="Poké Football" />
+    <meta
+      name="description"
+      content="Unofficial 3v3 Pokémon American football arcade game. Play on your phone or computer."
+    />
     <title>Pokémon Football — 3v3 Arcade Gridiron</title>
     <link rel="icon" href="./favicon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="./icons/apple-touch-icon.png" />
+    <link rel="manifest" href="./manifest.json" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -22,9 +37,18 @@
           <h1>Pokémon<br />Football</h1>
           <p class="tagline">Pick three. Hike. Run, throw, tackle, score.</p>
           <button id="btn-play" class="btn primary" type="button">Play Game</button>
+          <p class="install-hint">
+            On a phone: Share → Add to Home Screen. Then it opens like an app.
+          </p>
           <section class="controls-card" aria-label="Controls">
-            <h2>Controls</h2>
-            <ul>
+            <h2>How to play</h2>
+            <ul class="controls-touch">
+              <li><span class="chip">Stick</span> Move your Pokémon</li>
+              <li><span class="chip gold">Hike</span> Snap, throw, hand off, or tackle</li>
+              <li><span class="chip">Faces</span> Pick a teammate (or switch defenders)</li>
+              <li><span class="chip">Ability</span> Use that Pokémon’s special move</li>
+            </ul>
+            <ul class="controls-kb">
               <li><kbd>W A S D</kbd> or <kbd>Arrows</kbd> Move</li>
               <li><kbd>Space</kbd> Snap · Throw · Handoff · Tackle</li>
               <li><kbd>1</kbd> <kbd>2</kbd> <kbd>3</kbd> Pick a receiver (or defender)</li>
@@ -62,7 +86,10 @@
             <span id="sb-you" class="sb-score">0</span>
           </div>
           <div class="sb-mid">
-            <div id="sb-clock" class="sb-clock">3:00</div>
+            <div class="sb-clock-row">
+              <div id="sb-clock" class="sb-clock">3:00</div>
+              <button id="btn-mute" class="btn tiny sb-mute" type="button">Sound on</button>
+            </div>
             <div id="sb-down" class="sb-down">1st &amp; 10</div>
             <div id="sb-spot" class="sb-spot">Ball on 25 · YOU possess</div>
           </div>
@@ -72,20 +99,53 @@
           </div>
         </header>
         <canvas id="field"></canvas>
+        <div id="touch-pad" class="touch-pad">
+          <div class="stick">
+            <div class="stick-base" id="stick-base">
+              <div class="stick-knob" id="stick-knob"></div>
+            </div>
+            <span class="stick-label">Move</span>
+          </div>
+          <div class="touch-actions">
+            <div class="touch-slots">
+              <button type="button" class="pad-slot" id="slot-1" aria-label="Teammate 1">
+                <img alt="" />
+                <span class="slot-name"></span>
+              </button>
+              <button type="button" class="pad-slot" id="slot-2" aria-label="Teammate 2">
+                <img alt="" />
+                <span class="slot-name"></span>
+              </button>
+              <button type="button" class="pad-slot" id="slot-3" aria-label="Teammate 3">
+                <img alt="" />
+                <span class="slot-name"></span>
+              </button>
+            </div>
+            <div class="touch-buttons">
+              <button type="button" class="pad-ability" id="btn-ability">
+                <span class="pad-kicker">Ability</span>
+                <span id="ability-name">Special</span>
+              </button>
+              <button type="button" class="pad-action" id="btn-action">Hike</button>
+            </div>
+          </div>
+        </div>
         <footer id="game-bar">
           <span><kbd>WASD</kbd> Move</span>
           <span><kbd>Space</kbd> Throw / Tackle</span>
           <span><kbd>1 2 3</kbd> Select</span>
           <span><kbd>Shift</kbd> Ability</span>
-          <button id="btn-mute" class="btn tiny" type="button">Sound on</button>
         </footer>
         <div id="help" class="modal">
           <div class="modal-card">
             <h2>How to play</h2>
             <ul>
               <li>You control one Pokémon at a time. On offense that is whoever has the ball.</li>
-              <li>Space throws to the circled receiver, or hands off if a teammate is next to you.</li>
-              <li>On defense, Space lunges into a tackle. 1 / 2 / 3 switches who you control.</li>
+              <li>
+                The gold button (or Space) throws to the circled teammate, or hands off if they are
+                next to you.
+              </li>
+              <li>On defense, tap Tackle to lunge. Tap a face to switch who you control.</li>
               <li>Get 10 yards in 4 downs, or score in the red end zone.</li>
             </ul>
             <button id="btn-got-it" class="btn primary" type="button">Got it — let’s hike</button>

@@ -80,6 +80,10 @@ export class Game {
     return this.match.down;
   }
 
+  get losYard(): number {
+    return this.match.losYard;
+  }
+
   constructor(playerTeam: PokemonDef[], cpuTeam: PokemonDef[]) {
     this.match = createMatch("player");
     this.players = [
@@ -171,7 +175,7 @@ export class Game {
     this.tackleMeter = 0;
     this.throwLock = 0;
     assignRoutes(offense);
-    this.setBanner(this.match.possession === "player" ? "YOUR BALL" : "CPU BALL", "Press Space to snap", 1.6, "#f4d35e");
+    this.setBanner(this.match.possession === "player" ? "YOUR BALL" : "CPU BALL", "Hike to snap", 1.6, "#f4d35e");
   }
 
   giveBall(actor: Actor): void {
@@ -297,7 +301,13 @@ export class Game {
     }
     if (me.team !== this.match.possession) {
       const carrier = this.ballCarrier();
-      if (carrier) this.lungeAt(me, carrier);
+      if (!carrier) return;
+      const reach = me.radius + carrier.radius + TACKLE_RANGE_BONUS;
+      if (this.playTime >= 0.28 && !carrier.unstoppable && hypot(me.x - carrier.x, me.y - carrier.y) < reach) {
+        this.whistleTackle(carrier);
+        return;
+      }
+      this.lungeAt(me, carrier);
     }
   }
 
@@ -373,8 +383,8 @@ export class Game {
     const dy = target.y - actor.y;
     const d = hypot(dx, dy) || 1;
     actor.lunge = LUNGE_TIME;
-    actor.vx = (dx / d) * 430;
-    actor.vy = (dy / d) * 430;
+    actor.vx = (dx / d) * 560;
+    actor.vy = (dy / d) * 560;
     actor.facing = dx >= 0 ? 1 : -1;
   }
 
@@ -440,7 +450,7 @@ export class Game {
   }
 
   private checkTackle(dt: number): void {
-    if (this.playTime < 0.45) return;
+    if (this.playTime < 0.28) return;
     if (this.ball.state !== "held") {
       this.tackleMeter = 0;
       return;
@@ -453,23 +463,23 @@ export class Game {
     let engaged = false;
     for (const e of this.players) {
       if (e.team === carrier.team) continue;
-      const range = e.radius + carrier.radius + (e.lunge > 0 ? TACKLE_RANGE_BONUS : 3);
+      const range = e.radius + carrier.radius + (e.lunge > 0 ? TACKLE_RANGE_BONUS : 12);
       if (hypot(e.x - carrier.x, e.y - carrier.y) > range) continue;
       engaged = true;
-      if (e.guaranteedTackle) {
+      if (e.guaranteedTackle || e.lunge > 0) {
         e.guaranteedTackle = false;
         this.whistleTackle(carrier);
         return;
       }
-      const def = e.pokemon.strength * (e.lunge > 0 ? 1.4 : 1);
-      const off = carrier.pokemon.strength + 3.2;
-      this.tackleMeter += (def / off) * dt * 2.5;
-      if (this.tackleMeter > 0.4) {
+      const def = e.pokemon.strength;
+      const off = carrier.pokemon.strength + 2;
+      this.tackleMeter += (def / off) * dt * 4.4;
+      if (this.tackleMeter > 0.16) {
         this.whistleTackle(carrier);
         return;
       }
     }
-    if (!engaged) this.tackleMeter = Math.max(0, this.tackleMeter - dt * 1.4);
+    if (!engaged) this.tackleMeter = Math.max(0, this.tackleMeter - dt * 0.8);
   }
 
   private whistleTackle(carrier: Actor): void {

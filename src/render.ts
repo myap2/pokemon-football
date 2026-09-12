@@ -320,7 +320,7 @@ function drawSnapHint(ctx: CanvasRenderingContext2D, w: number, h: number, game:
     game.match.possession === "player"
       ? "You are the quarterback"
       : "You are on defense";
-  ctx.fillText(`SPACE to snap  ·  ${extra}`, w / 2, h - 54);
+  ctx.fillText(`Hike to snap  ·  ${extra}`, w / 2, h - 54);
 }
 
 export function clockLabel(seconds: number): string {

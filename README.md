@@ -13,6 +13,12 @@ npm run dev
 
 Then open the local URL Vite prints (usually `http://localhost:5173`).
 
+### Phone / tablet
+
+This is a mobile web app. On an iPhone or iPad, open the site in Safari, tap **Share → Add to Home Screen**. On Android, use the browser menu **Add to Home screen**. After that it launches full-screen like an app.
+
+On a phone you get a left thumb stick, a gold **Hike / Throw / Tackle** button, teammate faces, and Ability. Keyboard still works on a computer. Landscape puts the stick and buttons over the field so the grass stays big; portrait keeps a control dock under the field.
+
 ## How it works
 
 1. **Home** — title, Play Game, and the desktop controls.
@@ -22,12 +28,12 @@ Then open the local URL Vite prints (usually `http://localhost:5173`).
 
 ### Controls
 
-| Key | Action |
-|---|---|
-| WASD or arrows | Move the Pokémon you control |
-| Space | Snap, throw, hand off, or tackle |
-| 1 / 2 / 3 | Choose a receiver (offense) or switch defenders (defense) |
-| Shift | Use that Pokémon’s special ability |
+| Phone | Keyboard | Action |
+|---|---|---|
+| Left stick | WASD or arrows | Move the Pokémon you control |
+| Gold button | Space | Snap, throw, hand off, or tackle |
+| Teammate faces | 1 / 2 / 3 | Choose a receiver (offense) or switch defenders (defense) |
+| Ability | Shift | Use that Pokémon’s special ability |
 
 When the ball is thrown or handed off, you take control of the Pokémon who now has it.
 

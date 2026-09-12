@@ -1,4 +1,4 @@
-import { FIELD_H, HANDOFF_RANGE, PX_PER_YARD, hypot } from "./constants";
+import { FIELD_H, HANDOFF_RANGE, PX_PER_YARD, clamp, hypot, yardToX } from "./constants";
 import { attackDir } from "./match";
 import { seek } from "./physics";
 import type { Actor, Ball } from "./types";
@@ -10,6 +10,7 @@ export interface Sim {
   playTime: number;
   possession: TeamId;
   down: number;
+  losYard: number;
   ball: Ball;
   throwTo(from: Actor, to: Actor): void;
   tryHandoff(from: Actor, to: Actor): boolean;
@@ -36,7 +37,7 @@ export function think(sim: Sim, dt: number): void {
 
 function runOffense(sim: Sim, actor: Actor, carrier: Actor | null, dt: number): void {
   if (actor.hasBall) {
-    if (actor.team === "cpu") scramble(sim, actor, dt);
+    if (actor.team === "cpu") stayInPocket(sim, actor, dt);
     return;
   }
 
@@ -70,20 +71,22 @@ function followRoute(actor: Actor, dt: number): void {
   if (hypot(actor.x - wp.x, actor.y - wp.y) < 20) actor.routeI += 1;
 }
 
-function scramble(sim: Sim, qb: Actor, dt: number): void {
+function stayInPocket(sim: Sim, qb: Actor, dt: number): void {
   const dir = attackDir(qb.team);
+  const losX = yardToX(sim.losYard);
+  const pocketX = losX - dir * 5.2 * PX_PER_YARD;
+  const behind = (losX - qb.x) * dir;
   const threat = closest(
     qb,
     sim.players.filter((p) => p.team !== qb.team),
   );
-  let tx = qb.x + dir * 80;
   let ty = qb.y;
-  if (threat && hypot(threat.x - qb.x, threat.y - qb.y) < 90) {
+  if (threat && hypot(threat.x - qb.x, threat.y - qb.y) < 110) {
     const away = qb.y >= threat.y ? 1 : -1;
-    tx = qb.x + dir * 40;
-    ty = qb.y + away * 70;
+    ty = clamp(qb.y + away * 80, 36, FIELD_H - 36);
   }
-  seek(qb, tx, ty, dt, 1);
+  const tx = behind < 12 ? losX - dir * 6.5 * PX_PER_YARD : pocketX;
+  seek(qb, tx, ty, dt, behind < 14 ? 1.2 : 0.8);
 }
 
 function cpuQuarterback(sim: Sim, qb: Actor, offense: Actor[], defense: Actor[]): void {
@@ -92,31 +95,30 @@ function cpuQuarterback(sim: Sim, qb: Actor, offense: Actor[], defense: Actor[])
   const rb = offense.find((p) => p.role === "rb");
   const rusher = closest(qb, defense);
   const pressure = rusher ? hypot(rusher.x - qb.x, rusher.y - qb.y) : 999;
-  const dir = attackDir("cpu");
-
   const wrOpen = wr ? openness(wr, defense) : 0;
   const rbOpen = rb ? openness(rb, defense) : 0;
-  const lane = !defense.some(
-    (d) => Math.abs(d.y - qb.y) < 36 && (d.x - qb.x) * dir > 8 && (d.x - qb.x) * dir < 90,
-  );
+  const dump = wr && rb ? (wrOpen >= rbOpen ? wr : rb) : (wr ?? rb);
 
-  if (pressure < 48 && wr && wrOpen > 42) {
-    sim.throwTo(qb, wr);
-    return;
-  }
-  if (wr && wrOpen > 70 && sim.playTime > 1.1) {
-    sim.throwTo(qb, wr);
-    return;
-  }
-  if (rb && hypot(rb.x - qb.x, rb.y - qb.y) < HANDOFF_RANGE && (pressure < 70 || sim.down >= 3)) {
+  if (rb && hypot(rb.x - qb.x, rb.y - qb.y) < HANDOFF_RANGE && (pressure < 64 || sim.down >= 3)) {
     if (sim.tryHandoff(qb, rb)) return;
   }
-  if (rb && rbOpen > 55 && pressure < 60 && sim.playTime > 0.9) {
+  if (pressure < 52 && wr && wrOpen > 36) {
+    sim.throwTo(qb, wr);
+    return;
+  }
+  if (wr && wrOpen > 58 && sim.playTime > 0.85) {
+    sim.throwTo(qb, wr);
+    return;
+  }
+  if (rb && rbOpen > 48 && sim.playTime > 0.8) {
     sim.throwTo(qb, rb);
     return;
   }
-  if (lane && pressure > 55) return;
-  if (pressure < 40 && wr) sim.throwTo(qb, wr);
+  if (pressure < 42 && dump) {
+    sim.throwTo(qb, dump);
+    return;
+  }
+  if (sim.playTime > 2.4 && dump) sim.throwTo(qb, dump);
 }
 
 function runDefense(
@@ -135,9 +137,9 @@ function runDefense(
   if (actor.role === "rusher") {
     seek(actor, carrier.x, carrier.y, dt, 1.05);
     if (
-      sim.playTime > 0.7 &&
-      hypot(actor.x - carrier.x, actor.y - carrier.y) < 64 &&
-      Math.random() < dt * 1.6
+      sim.playTime > 0.55 &&
+      hypot(actor.x - carrier.x, actor.y - carrier.y) < 88 &&
+      Math.random() < dt * 2.4
     ) {
       sim.lungeAt(actor, carrier);
     }

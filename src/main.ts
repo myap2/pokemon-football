@@ -1,6 +1,15 @@
 import "./style.css";
+import { HANDOFF_RANGE, hypot } from "./constants";
 import { assignCpuRoles, ROSTER, pokemonById, type PokemonDef } from "./data";
-import { installInput, pollInput } from "./input";
+import {
+  bindPulse,
+  bindStick,
+  installInput,
+  pollInput,
+  pulseAbility,
+  pulseSlot,
+  pulseSpace,
+} from "./input";
 import { sfx, toggleMute, unlockAudio } from "./audio";
 import { clockLabel, downLine, loadSprites, renderGame } from "./render";
 import { Game } from "./world";
@@ -32,8 +41,16 @@ function $(id: string): HTMLElement {
   return el;
 }
 
+function syncTouchMode(): void {
+  const touch =
+    window.matchMedia("(pointer: coarse)").matches ||
+    window.matchMedia("(max-width: 900px)").matches;
+  document.documentElement.classList.toggle("touch-ui", touch);
+}
+
 function show(name: keyof typeof screens): void {
   screen = name;
+  document.body.classList.toggle("playing", name === "game");
   for (const [key, el] of Object.entries(screens)) {
     el.classList.toggle("hidden", key !== name);
   }
@@ -110,10 +127,63 @@ function endMatch(): void {
 }
 
 function resize(): void {
+  syncTouchMode();
   const rect = canvas.getBoundingClientRect();
   const dpr = Math.min(2, window.devicePixelRatio || 1);
   canvas.width = Math.max(1, Math.floor(rect.width * dpr));
   canvas.height = Math.max(1, Math.floor(rect.height * dpr));
+}
+
+function actionLabel(g: Game, help: boolean): string {
+  if (help) return "Got it";
+  if (g.phase === "presnap") return "Hike";
+  if (g.phase !== "live") return "OK";
+  const me = g.controlled();
+  if (me.hasBall && g.match.possession === "player") {
+    const mate = g.nearestTeammate(me);
+    if (mate && hypot(mate.x - me.x, mate.y - me.y) < HANDOFF_RANGE) return "Handoff";
+    return "Throw";
+  }
+  if (g.match.possession !== "player") return "Tackle";
+  return "Go";
+}
+
+function syncTouchHud(): void {
+  if (!game) return;
+  $("btn-action").textContent = actionLabel(game, helpOpen);
+
+  const me = game.controlled();
+  $("ability-name").textContent = me.pokemon.ability.name;
+  $("btn-ability").classList.toggle("cooling", me.abilityCd > 0 && me.abilityT <= 0);
+  $("btn-ability").classList.toggle("hot", me.abilityT > 0);
+
+  const offense = game.match.possession === "player";
+  const slots = offense
+    ? game.teamActors("player").filter((p) => !p.hasBall)
+    : game.teamActors("player");
+
+  for (let i = 1; i <= 3; i++) {
+    const btn = $(`slot-${i}`);
+    const actor = slots[i - 1];
+    const img = btn.querySelector("img");
+    const cap = btn.querySelector(".slot-name");
+    if (!(img instanceof HTMLImageElement) || !(cap instanceof HTMLElement)) continue;
+    if (!actor) {
+      btn.classList.add("empty");
+      btn.classList.remove("active");
+      img.removeAttribute("src");
+      img.alt = "";
+      cap.textContent = "";
+      continue;
+    }
+    btn.classList.remove("empty");
+    const src = `./sprites/${actor.pokemon.id}.svg`;
+    if (img.getAttribute("src") !== src) img.src = src;
+    img.alt = actor.pokemon.name;
+    cap.textContent = actor.pokemon.name;
+    const selected = offense ? actor.id === game.selectedRecvId : actor.id === game.controlId;
+    btn.classList.toggle("active", selected);
+  }
 }
 
 function syncHud(): void {
@@ -124,6 +194,7 @@ function syncHud(): void {
   $("sb-down").textContent = downLine(game);
   const poss = game.match.possession === "player" ? "YOU possess" : "CPU possesses";
   $("sb-spot").textContent = `Ball on ${Math.round(game.match.ballYard)} · ${poss}`;
+  syncTouchHud();
 }
 
 function frame(now: number): void {
@@ -149,6 +220,18 @@ function dismissHelp(): void {
   $("help").classList.add("hidden");
 }
 
+function installTouchPad(): void {
+  bindStick($("stick-base"), $("stick-knob"));
+  bindPulse($("btn-action"), pulseSpace);
+  bindPulse($("btn-ability"), pulseAbility);
+  bindPulse($("slot-1"), () => pulseSlot(1));
+  bindPulse($("slot-2"), () => pulseSlot(2));
+  bindPulse($("slot-3"), () => pulseSlot(3));
+  const pad = $("touch-pad");
+  pad.addEventListener("pointerdown", () => unlockAudio());
+  pad.addEventListener("contextmenu", (e) => e.preventDefault());
+}
+
 $("btn-play").addEventListener("click", () => {
   unlockAudio();
   sfx.snap();
@@ -171,11 +254,25 @@ $("btn-again").addEventListener("click", () => {
 $("btn-home").addEventListener("click", () => show("home"));
 $("btn-mute").addEventListener("click", () => {
   const muted = toggleMute();
-  $("btn-mute").textContent = muted ? "Sound off" : "Sound on";
+  $("btn-mute").textContent = muted ? "Muted" : "Sound on";
 });
 
+document.addEventListener(
+  "touchmove",
+  (e) => {
+    if (document.body.classList.contains("playing")) e.preventDefault();
+  },
+  { passive: false },
+);
+document.addEventListener("gesturestart", (e) => e.preventDefault(), { capture: true });
+
 window.addEventListener("resize", resize);
+window.visualViewport?.addEventListener("resize", resize);
+window.addEventListener("orientationchange", () => requestAnimationFrame(resize));
+
+syncTouchMode();
 installInput();
+installTouchPad();
 renderRoster();
 void loadSprites();
 requestAnimationFrame(frame);

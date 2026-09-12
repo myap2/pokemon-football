@@ -14,8 +14,8 @@ export const MAX_POSSESSIONS = 8;
 export const OPENING_YARD = 25;
 
 export const HANDOFF_RANGE = 54;
-export const TACKLE_RANGE_BONUS = 18;
-export const LUNGE_TIME = 0.22;
+export const TACKLE_RANGE_BONUS = 30;
+export const LUNGE_TIME = 0.28;
 export const WHISTLE_TIME = 1.15;
 export const TD_TIME = 2.6;
 export const THROW_LOCK = 0.12;
