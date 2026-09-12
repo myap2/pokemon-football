@@ -512,14 +512,6 @@ export class Game {
     }
     if (carrier.team === "cpu" && yard <= 0) {
       this.endPlay({ type: "touchdown" });
-      return;
-    }
-    if (carrier.team === "player" && yard <= 0) {
-      this.endPlay({ type: "safety" });
-      return;
-    }
-    if (carrier.team === "cpu" && yard >= 100) {
-      this.endPlay({ type: "safety" });
     }
   }
 

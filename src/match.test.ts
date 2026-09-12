@@ -5,6 +5,7 @@ import {
   fieldNumber,
   fieldSpotLabel,
   firstDownMarker,
+  isOwnEndzone,
   reachedFirstDown,
   startSeries,
   yardsNeededLabel,
@@ -119,6 +120,18 @@ describe("turnovers and scoring", () => {
   it("awards 2 points on a safety and gives the other team the ball", () => {
     const m = createMatch("player");
     const r = applyPlayEnd(m, { type: "safety" });
+    expect(r.scoring).toBe("safety");
+    expect(m.score.cpu).toBe(2);
+    expect(m.possession).toBe("cpu");
+    expect(m.losYard).toBe(75);
+  });
+
+  it("treats a tackle in your own endzone as a safety", () => {
+    expect(isOwnEndzone("player", -2)).toBe(true);
+    expect(isOwnEndzone("player", 1)).toBe(false);
+    expect(isOwnEndzone("cpu", 102)).toBe(true);
+    const m = createMatch("player");
+    const r = applyPlayEnd(m, { type: "tackle", yard: -3 });
     expect(r.scoring).toBe("safety");
     expect(m.score.cpu).toBe(2);
     expect(m.possession).toBe("cpu");

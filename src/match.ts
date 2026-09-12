@@ -83,6 +83,10 @@ export function yardsToGoal(state: MatchState): number {
   return state.possession === "player" ? 100 - state.losYard : state.losYard;
 }
 
+export function isOwnEndzone(team: TeamId, yard: number): boolean {
+  return team === "player" ? yard <= 0 : yard >= 100;
+}
+
 export function firstDownMarker(state: MatchState): number {
   const dir = attackDir(state.possession);
   return clamp(state.losYard + dir * state.yardsToGo, 0, 100);
@@ -165,7 +169,7 @@ export function applyPlayEnd(state: MatchState, play: PlayEnd): PlayResult {
     };
   }
 
-  if (play.type === "safety") {
+  if (play.type === "safety" || (play.type === "tackle" && isOwnEndzone(state.possession, play.yard))) {
     const defense = otherTeam(state.possession);
     state.score[defense] += SAFETY_POINTS;
     state.possessionsPlayed += 1;

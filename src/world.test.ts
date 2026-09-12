@@ -70,6 +70,36 @@ describe("game world", () => {
     expect(game.match.possession).toBe("player");
   });
 
+  it("does not call a safety just for running into your own endzone", () => {
+    const game = new Game(ROSTER.slice(0, 3), assignCpuRoles(ROSTER.slice(3)));
+    game.snap();
+    const qb = game.ballCarrier()!;
+    qb.x = yardToX(-6);
+    qb.y = 200;
+    qb.vx = 0;
+    qb.vy = 0;
+    for (const p of game.players) {
+      if (p.team === "cpu") {
+        p.x = yardToX(80);
+        p.y = 200;
+        p.vx = 0;
+        p.vy = 0;
+      }
+    }
+    const idle = {
+      ax: 0,
+      ay: 0,
+      space: false,
+      spacePressed: false,
+      shiftPressed: false,
+      digitPressed: null as 1 | 2 | 3 | null,
+    };
+    for (let i = 0; i < 24; i++) game.update(1 / 60, idle);
+    expect(game.phase).toBe("live");
+    expect(game.match.score.cpu).toBe(0);
+    expect(game.ballCarrier()?.id).toBe(qb.id);
+  });
+
   it("keeps the computer quarterback behind the line of scrimmage", () => {
     const game = new Game(ROSTER.slice(0, 3), assignCpuRoles(ROSTER.slice(3)));
     startSeries(game.match, "cpu", 75);
