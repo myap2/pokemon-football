@@ -1,6 +1,7 @@
 import { think, assignRoutes } from "./ai";
 import { sfx } from "./audio";
 import {
+  CPU_SNAP_DELAY,
   FIELD_H,
   HANDOFF_RANGE,
   LUNGE_TIME,
@@ -175,7 +176,12 @@ export class Game {
     this.tackleMeter = 0;
     this.throwLock = 0;
     assignRoutes(offense);
-    this.setBanner(this.match.possession === "player" ? "YOUR BALL" : "CPU BALL", "Hike to snap", 1.6, "#f4d35e");
+    this.setBanner(
+      this.match.possession === "player" ? "YOUR BALL" : "CPU BALL",
+      this.match.possession === "player" ? "Hike to snap" : "Get set — CPU will hike",
+      1.6,
+      "#f4d35e",
+    );
   }
 
   giveBall(actor: Actor): void {
@@ -212,11 +218,16 @@ export class Game {
     this.particles = this.particles.filter((p) => p.life > 0);
 
     if (this.phase === "presnap") {
+      this.phaseT += dt;
       this.followBall();
       if (this.match.possession !== "player" && input.digitPressed) {
         this.switchDefender(input.digitPressed);
       }
-      if (input.spacePressed) this.snap();
+      if (this.match.possession === "player") {
+        if (input.spacePressed) this.snap();
+      } else if (this.phaseT >= CPU_SNAP_DELAY || input.spacePressed) {
+        this.snap();
+      }
       return;
     }
 

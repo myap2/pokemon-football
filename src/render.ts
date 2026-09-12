@@ -318,9 +318,9 @@ function drawSnapHint(ctx: CanvasRenderingContext2D, w: number, h: number, game:
   ctx.font = "700 16px Nunito, sans-serif";
   const extra =
     game.match.possession === "player"
-      ? "You are the quarterback"
-      : "You are on defense";
-  ctx.fillText(`Hike to snap  ·  ${extra}`, w / 2, h - 54);
+      ? "Hike to snap  ·  You are the quarterback"
+      : "CPU will hike  ·  You are on defense";
+  ctx.fillText(extra, w / 2, h - 54);
 }
 
 export function clockLabel(seconds: number): string {

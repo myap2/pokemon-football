@@ -2,6 +2,8 @@ import { describe, expect, it } from "vitest";
 import {
   applyPlayEnd,
   createMatch,
+  fieldNumber,
+  fieldSpotLabel,
   firstDownMarker,
   reachedFirstDown,
   startSeries,
@@ -24,6 +26,20 @@ describe("match setup", () => {
     const m = createMatch("cpu");
     expect(m.ballYard).toBe(75);
     expect(m.firstDownYard).toBe(65);
+  });
+});
+
+describe("field numbers", () => {
+  it("counts up to midfield and back down to the other goal", () => {
+    expect(fieldNumber(25)).toBe(25);
+    expect(fieldNumber(50)).toBe(50);
+    expect(fieldNumber(75)).toBe(25);
+    expect(fieldNumber(76)).toBe(24);
+    expect(fieldSpotLabel(25)).toBe("YOU 25");
+    expect(fieldSpotLabel(50)).toBe("the 50");
+    expect(fieldSpotLabel(76)).toBe("CPU 24");
+    expect(fieldSpotLabel(0)).toBe("YOU goal");
+    expect(fieldSpotLabel(100)).toBe("CPU goal");
   });
 });
 

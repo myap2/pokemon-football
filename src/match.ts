@@ -104,6 +104,21 @@ export function yardsNeededLabel(state: MatchState): string {
   return isGoalToGo(state) ? "Goal" : String(Math.max(1, Math.ceil(state.yardsToGo - 1e-6)));
 }
 
+/** Painted number on the field (0–50). 0 is a goal line, 50 is midfield. */
+export function fieldNumber(yard: number): number {
+  const y = clamp(yard, 0, 100);
+  return Math.round(Math.min(y, 100 - y));
+}
+
+/** Scoreboard spot, matching the numbers painted on the grass. */
+export function fieldSpotLabel(yard: number): string {
+  const n = fieldNumber(yard);
+  if (n === 50) return "the 50";
+  const side = yard <= 50 ? "YOU" : "CPU";
+  if (n === 0) return `${side} goal`;
+  return `${side} ${n}`;
+}
+
 export function tickClock(state: MatchState, dt: number): void {
   if (state.over) return;
   state.clock = Math.max(0, state.clock - dt);

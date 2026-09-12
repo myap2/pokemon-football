@@ -11,6 +11,7 @@ import {
   pulseSpace,
 } from "./input";
 import { sfx, toggleMute, unlockAudio } from "./audio";
+import { fieldSpotLabel } from "./match";
 import { clockLabel, downLine, loadSprites, renderGame } from "./render";
 import { Game } from "./world";
 
@@ -136,7 +137,7 @@ function resize(): void {
 
 function actionLabel(g: Game, help: boolean): string {
   if (help) return "Got it";
-  if (g.phase === "presnap") return "Hike";
+  if (g.phase === "presnap") return g.match.possession === "player" ? "Hike" : "Ready";
   if (g.phase !== "live") return "OK";
   const me = g.controlled();
   if (me.hasBall && g.match.possession === "player") {
@@ -193,7 +194,7 @@ function syncHud(): void {
   $("sb-clock").textContent = clockLabel(game.match.clock);
   $("sb-down").textContent = downLine(game);
   const poss = game.match.possession === "player" ? "YOU possess" : "CPU possesses";
-  $("sb-spot").textContent = `Ball on ${Math.round(game.match.ballYard)} · ${poss}`;
+  $("sb-spot").textContent = `Ball on ${fieldSpotLabel(game.match.ballYard)} · ${poss}`;
   syncTouchHud();
 }
 

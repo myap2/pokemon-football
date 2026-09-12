@@ -19,6 +19,7 @@ export const LUNGE_TIME = 0.28;
 export const WHISTLE_TIME = 1.15;
 export const TD_TIME = 2.6;
 export const THROW_LOCK = 0.12;
+export const CPU_SNAP_DELAY = 1.15;
 
 export function yardToX(yard: number): number {
   return (yard + ENDZONE_YARDS) * PX_PER_YARD;

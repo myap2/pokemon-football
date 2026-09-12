@@ -36,6 +36,40 @@ describe("game world", () => {
     expect(game.match.clock).toBeLessThan(180);
   });
 
+  it("lets the computer hike without the player pressing snap", () => {
+    const game = new Game(ROSTER.slice(0, 3), assignCpuRoles(ROSTER.slice(3)));
+    startSeries(game.match, "cpu", 75);
+    game.setupPlay();
+    expect(game.phase).toBe("presnap");
+    const idle = {
+      ax: 0,
+      ay: 0,
+      space: false,
+      spacePressed: false,
+      shiftPressed: false,
+      digitPressed: null as 1 | 2 | 3 | null,
+    };
+    for (let i = 0; i < 30; i++) game.update(1 / 60, idle);
+    expect(game.phase).toBe("presnap");
+    for (let i = 0; i < 50; i++) game.update(1 / 60, idle);
+    expect(game.phase).toBe("live");
+  });
+
+  it("does not auto-hike while the player has the ball", () => {
+    const game = new Game(ROSTER.slice(0, 3), assignCpuRoles(ROSTER.slice(3)));
+    const idle = {
+      ax: 0,
+      ay: 0,
+      space: false,
+      spacePressed: false,
+      shiftPressed: false,
+      digitPressed: null as 1 | 2 | 3 | null,
+    };
+    for (let i = 0; i < 90; i++) game.update(1 / 60, idle);
+    expect(game.phase).toBe("presnap");
+    expect(game.match.possession).toBe("player");
+  });
+
   it("keeps the computer quarterback behind the line of scrimmage", () => {
     const game = new Game(ROSTER.slice(0, 3), assignCpuRoles(ROSTER.slice(3)));
     startSeries(game.match, "cpu", 75);
