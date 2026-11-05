@@ -62,8 +62,8 @@ export function bindStick(base: HTMLElement, knob: HTMLElement): void {
   const onDown = (e: PointerEvent): void => {
     if (touch.stickId !== null) return;
     e.preventDefault();
-    touch.stickId = e.pointerId;
     base.setPointerCapture(e.pointerId);
+    touch.stickId = e.pointerId;
     const next = fromEvent(e);
     setStick(next.ax, next.ay);
     syncKnob(next.ax, next.ay);
@@ -77,17 +77,26 @@ export function bindStick(base: HTMLElement, knob: HTMLElement): void {
     syncKnob(next.ax, next.ay);
   };
 
+  const reset = (): void => {
+    clearStick();
+    syncKnob(0, 0);
+  };
+
   const onUp = (e: PointerEvent): void => {
     if (touch.stickId !== e.pointerId) return;
     e.preventDefault();
-    clearStick();
-    syncKnob(0, 0);
+    reset();
   };
 
   base.addEventListener("pointerdown", onDown);
   base.addEventListener("pointermove", onMove);
   base.addEventListener("pointerup", onUp);
   base.addEventListener("pointercancel", onUp);
+  base.addEventListener("lostpointercapture", onUp);
+  window.addEventListener("blur", reset);
+  document.addEventListener("visibilitychange", () => {
+    if (document.hidden) reset();
+  });
   base.addEventListener("contextmenu", (e) => e.preventDefault());
 }
 
@@ -120,7 +129,6 @@ export function installInput(): void {
   window.addEventListener("blur", () => {
     held.clear();
     pressed.clear();
-    clearStick();
   });
 }
 
